@@ -5,18 +5,19 @@ namespace LabN1
 {
     class Menu
     {
-        public List<MenuItem> M { get; set; }
-        public void Init()
+        public List<MenuItem> MenuItems { get; private set; }
+        public void Init(TodoList td)
         {
-            List<MenuItem> m = new List<MenuItem> { };
-            string[] mi = { "Add task", "Last tasks", "Find task by tags","Load from .csv file", "Save in .csv format", "Exit" };
+            List<MenuItem> menu = new List<MenuItem> { };
+            string[] menuitems = { "Add task", "Last tasks", "Find task by tags","Load from .csv file", "Save in .csv format", "Exit" };
+            Func<bool>[] foo = {td.AddTask, td.PrintAll, td.Delete, td.InitCsv, td.SaveCsv, td.Save};
             int i = 1;
-            foreach (string item in mi)
+            foreach (string item in menuitems)
             {
-                m.Add(new MenuItem(mi[i - 1], char.Parse(i.ToString())));
+                menu.Add(new MenuItem(menuitems[i - 1], char.Parse(i.ToString()), foo[i-1]));
                 i++;
             }
-            M = m;
+            MenuItems = menu;
         }
         public void Print()
         {
@@ -24,15 +25,16 @@ namespace LabN1
             Console.ReadLine();
             Console.Clear();
             Console.WriteLine("Menu:");
-            foreach (var item in M)
+            foreach (var item in MenuItems)
             {
                 Console.WriteLine($"{item.Key}.{item.Label}");
             }
             Console.Write("> ");
         }
-        public void Work(Todo_list td)
+        public void Work(TodoList td)
         {
-            while (true)
+            bool run = true;
+            while (run)
             {
                 Print();
                 if (!char.TryParse(Console.ReadLine(), out char m))
@@ -40,45 +42,15 @@ namespace LabN1
                     Console.WriteLine("Wrong input");
                     continue;
                 }
-                switch (m)
+                foreach (var item in MenuItems)
                 {
-                    case '1':
-                        {
-                            td.AddTask();
-                            break;
-                        }
-                    case '2':
-                        {
-                            td.PrintAll();
-                            break;
-                        }
-                    case '3':
-                        {
-                            td.Delete();
-                            break;
-                        }
-                    case '4':
-                        {
-                            td.InitCsv();
-                            break;
-                        }
-                    case '5':
-                        {
-                            td.SaveCsv();
-                            break;
-                        }
-                    case '6':
-                        {
-                            td.Save();                            
-                            return;
-                        }
-                    default:
-                        {
-                            Console.WriteLine("Unknown command");
-                            break;
-                        }
+                    if (m == item.Key)
+                    {
+                        run = item.Action();
+                    }
                 }
             }
         }
+        
     }
 }

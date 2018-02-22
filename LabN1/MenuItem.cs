@@ -7,10 +7,12 @@ namespace LabN1
     {
         public string Label { get; set; }
         public char Key { get; set; }
-        public MenuItem(string lbl, char k)
+        public Func<bool> Action;
+        public MenuItem(string label, char key, Func<bool> action)
         {
-            this.Label = lbl;
-            this.Key = k;
+            Label = label;
+            Key = key;
+            Action = action;
         }
     }
 }

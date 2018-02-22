@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace LabN1
 {
@@ -10,10 +9,10 @@ namespace LabN1
             Console.Write("Please, introduce yourself: ");
             string name = Console.ReadLine();
             Console.WriteLine($"Hello, {name}!");
-            var td = new Todo_list();
+            var td = new TodoList();
             td.Init();
             var menu = new Menu();
-            menu.Init();
+            menu.Init(td);
             menu.Work(td);
             Console.WriteLine($"Goodbye, {name}!");
             Console.ReadLine();

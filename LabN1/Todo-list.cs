@@ -4,13 +4,13 @@ using System.IO;
 
 namespace LabN1
 {
-    class Todo_list
+    class TodoList
     {
         public List<Task> Tasks { get; set; }
         public void Init()
         {
             List<Task> tasks = new List<Task> { };
-            string path = "C:\\Users\\artam\\source\\repos\\LabN1\\LabN1\\ToDo.txt";
+            string path = "ToDo.txt";
             var file = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read);
             var reader = new StreamReader(file);
             while (!reader.EndOfStream)
@@ -18,21 +18,19 @@ namespace LabN1
                 string title = reader.ReadLine();
                 string desc = reader.ReadLine();
                 DateTime date = DateTime.Parse(reader.ReadLine());
-                var tgs = new List<string> { };
-                int i = 1;
+                var tags = new List<string> { };
                 do
                 {
-                    i++;
-                    tgs.Add(reader.ReadLine());
-                } while (tgs[tgs.Count - 1] != "");
-                tgs.Remove("");
-                var task = new Task(title, desc, date, tgs);
+                    tags.Add(reader.ReadLine());
+                } while (tags[tags.Count - 1] != "");
+                tags.Remove("");
+                var task = new Task(title, desc, date, tags);
                 tasks.Add(task);               
             }
             Tasks = tasks;
             file.Close();
         }
-        public void AddTask()
+        public bool AddTask()
         {
             List<Task> tasks = new List<Task> { };
             tasks = Tasks;
@@ -40,7 +38,7 @@ namespace LabN1
             Console.Write($"{"Title:",16} ");
             string title = Console.ReadLine();
             Console.Write($"{"Description:",22} ");
-            string desc = Console.ReadLine();
+            string description = Console.ReadLine();
             DateTime date;
             while (true)
             {
@@ -54,22 +52,22 @@ namespace LabN1
                 Console.WriteLine("Sorry, you lost your time. Please, think of a new deadline.");
             }
             Console.WriteLine($"{"Tags (finish on empty line):",38} ");
-            var tgs = new List<string> { };
+            var tags = new List<string> { };
             int i = 1;
             do
             {
                 Console.Write($"{i,15}: ");
                 i++;
-                tgs.Add(Console.ReadLine());
-            } while (tgs[tgs.Count - 1] != "");
-            tgs.Remove("");
-            var task = new Task(title, desc, date, tgs);
+                tags.Add(Console.ReadLine());
+            } while (tags[tags.Count - 1] != "");
+            tags.Remove("");
+            var task = new Task(title, description, date, tags);
             tasks.Add(task);
             Tasks = tasks;
             Console.WriteLine("Task added!");
-            
+            return true;
         }
-        public void PrintAll()
+        public bool PrintAll()
         {
             if (Tasks != null && Tasks.Count!=0)
             {
@@ -84,13 +82,14 @@ namespace LabN1
                 }
             }
             else Console.WriteLine("No tasks");
+            return true;
         }
-        public void Save()
+        public bool Save()
         {
             Console.WriteLine("Do you want to save changes in ToDo.txt? (yes/any different)");
             if (Console.ReadLine() == "yes")
             {
-                string path = "C:\\Users\\artam\\source\\repos\\LabN1\\LabN1\\ToDo.txt";
+                string path = "ToDo.txt";
                 var file = new FileStream(path, FileMode.Truncate, FileAccess.Write);
                 var writer = new StreamWriter(file);
                 foreach (var item in Tasks)
@@ -107,6 +106,7 @@ namespace LabN1
                 writer.Close();
                 file.Close();
             }
+            return false;
         }
         private void Print(Task item)
         {
@@ -141,7 +141,7 @@ namespace LabN1
             });
             return cur;
         }
-        public void Delete()
+        public bool Delete()
         {
             List<Task> cur = Find();
             Console.WriteLine("Results:");
@@ -162,13 +162,14 @@ namespace LabN1
                 }
             }
             else Console.WriteLine("No tasks with such tags");
+            return true;
         }
-        public void SaveCsv()
+        public bool SaveCsv()
         {
             string path = PathReader();
             if (path == "cancel")
             {
-                return;
+                return true;
             }
             var file = new FileStream(path, FileMode.Create, FileAccess.Write);
             var writer = new StreamWriter(file);
@@ -186,8 +187,9 @@ namespace LabN1
             }
             writer.Close();
             file.Close();
+            return true;
         }
-        public void InitCsv()
+        public bool InitCsv()
         {
             List<Task> tasks = new List<Task> { };
             FileStream file;
@@ -196,35 +198,41 @@ namespace LabN1
                 string path = PathReader();
                 if (path == "cancel")
                 {
-                    return;
+                    return true;
                 }
-                if (File.Exists(path)) {
+                try
+                {
                     file = new FileStream(path, FileMode.Open, FileAccess.Read);
-                    break;
                 }
-                Console.WriteLine("File doesn't exist");
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    continue;
+                }
+                break;
             }
             var reader = new StreamReader(file);
             reader.ReadLine();
-            char[] sep = { ';' };
+            char[] separator = { ';' };
             while (!reader.EndOfStream)
             {
                 string str = reader.ReadLine();
-                string[] ar = str.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                string title = ar[0];
-                string desc = ar[1];
-                DateTime date = DateTime.Parse(ar[2]);
-                var tgs = new List<string> { };
-                for (int i = 3; i<ar.Length;i++)
+                string[] elements = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                string title = elements[0];
+                string desc = elements[1];
+                DateTime date = DateTime.Parse(elements[2]);
+                var tags = new List<string> { };
+                for (int i = 3; i<elements.Length;i++)
                 {
-                    string tag = ar[i];
-                    tgs.Add(tag);
+                    string tag = elements[i];
+                    tags.Add(tag);
                 }
-                var task = new Task(title, desc, date, tgs);
+                var task = new Task(title, desc, date, tags);
                 tasks.Add(task);
             }
             Tasks = tasks;
             file.Close();
+            return true;
         }
         private string PathReader()
         {
