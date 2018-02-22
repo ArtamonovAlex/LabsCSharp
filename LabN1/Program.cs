@@ -9,11 +9,9 @@ namespace LabN1
             Console.Write("Please, introduce yourself: ");
             string name = Console.ReadLine();
             Console.WriteLine($"Hello, {name}!");
-            var td = new TodoList();
-            td.Init();
-            var menu = new Menu();
-            menu.Init(td);
-            menu.Work(td);
+            var todo = new TodoList();
+            var main = Menu.InitMain(todo);
+            main.Work();
             Console.WriteLine($"Goodbye, {name}!");
             Console.ReadLine();
             return;

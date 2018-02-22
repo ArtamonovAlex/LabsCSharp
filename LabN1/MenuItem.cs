@@ -8,10 +8,9 @@ namespace LabN1
         public string Label { get; set; }
         public char Key { get; set; }
         public Func<bool> Action;
-        public MenuItem(string label, char key, Func<bool> action)
+        public MenuItem(string label, Func<bool> action)
         {
             Label = label;
-            Key = key;
             Action = action;
         }
     }

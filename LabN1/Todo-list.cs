@@ -6,34 +6,13 @@ namespace LabN1
 {
     class TodoList
     {
-        public List<Task> Tasks { get; set; }
-        public void Init()
+        public TodoList ()
         {
-            List<Task> tasks = new List<Task> { };
-            string path = "ToDo.txt";
-            var file = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read);
-            var reader = new StreamReader(file);
-            while (!reader.EndOfStream)
-            {
-                string title = reader.ReadLine();
-                string desc = reader.ReadLine();
-                DateTime date = DateTime.Parse(reader.ReadLine());
-                var tags = new List<string> { };
-                do
-                {
-                    tags.Add(reader.ReadLine());
-                } while (tags[tags.Count - 1] != "");
-                tags.Remove("");
-                var task = new Task(title, desc, date, tags);
-                tasks.Add(task);               
-            }
-            Tasks = tasks;
-            file.Close();
+            Tasks = new List<Task>();
         }
+        public List<Task> Tasks { get; private set; }
         public bool AddTask()
         {
-            List<Task> tasks = new List<Task> { };
-            tasks = Tasks;
             Console.WriteLine("New task:");
             Console.Write($"{"Title:",16} ");
             string title = Console.ReadLine();
@@ -53,17 +32,15 @@ namespace LabN1
             }
             Console.WriteLine($"{"Tags (finish on empty line):",38} ");
             var tags = new List<string> { };
-            int i = 1;
+            int counter = 1;
             do
             {
-                Console.Write($"{i,15}: ");
-                i++;
+                Console.Write($"{counter,15}: ");
+                counter++;
                 tags.Add(Console.ReadLine());
             } while (tags[tags.Count - 1] != "");
             tags.Remove("");
-            var task = new Task(title, description, date, tags);
-            tasks.Add(task);
-            Tasks = tasks;
+            Tasks.Add(new Task(title, description, date, tags));
             Console.WriteLine("Task added!");
             return true;
         }
@@ -84,28 +61,8 @@ namespace LabN1
             else Console.WriteLine("No tasks");
             return true;
         }
-        public bool Save()
+        public bool Exit()
         {
-            Console.WriteLine("Do you want to save changes in ToDo.txt? (yes/any different)");
-            if (Console.ReadLine() == "yes")
-            {
-                string path = "ToDo.txt";
-                var file = new FileStream(path, FileMode.Truncate, FileAccess.Write);
-                var writer = new StreamWriter(file);
-                foreach (var item in Tasks)
-                {
-                    writer.WriteLine(item.Title);
-                    writer.WriteLine(item.Description);
-                    writer.WriteLine(item.Deadline.ToShortDateString());
-                    foreach (var tag in item.Tags)
-                    {
-                        writer.WriteLine(tag);
-                    }
-                    writer.WriteLine("");
-                }
-                writer.Close();
-                file.Close();
-            }
             return false;
         }
         private void Print(Task item)
@@ -114,22 +71,20 @@ namespace LabN1
             Console.WriteLine($"Description: {item.Description}");
             Console.WriteLine($"Deadline: {item.Deadline:d}");
             Console.WriteLine($"Tags:");
-            int i = 1;
+            int counter = 1;
             foreach (var tag in item.Tags)
             {
-                Console.WriteLine($"    {i}: {tag}");
-                i++;
+                Console.WriteLine($"    {counter}: {tag}");
+                counter++;
             }
             Console.WriteLine("-------------------------");
         }
         private List<Task> Find()
         {
-            List<Task> tasks = new List<Task> { };
-            tasks = Tasks;
             Console.Write("Input tags devided by whitespace: ");
             string input = Console.ReadLine();
             string[] tags = input.Split((string[]) null, StringSplitOptions.RemoveEmptyEntries);
-            List<Task> cur = tasks.FindAll(delegate(Task c)
+            List<Task> result = Tasks.FindAll(delegate(Task c)
             {
                 int k = 0;
                 foreach (string tag in tags)
@@ -139,22 +94,22 @@ namespace LabN1
                 if (k == tags.Length) return true;
                 else return false;
             });
-            return cur;
+            return result;
         }
         public bool Delete()
         {
-            List<Task> cur = Find();
+            List<Task> result = Find();
             Console.WriteLine("Results:");
-            if (cur.Count != 0)
+            if (result.Count != 0)
             {
-                foreach (var item in cur)
+                foreach (var item in result)
                 {
                     Print(item);
                 }
                 Console.WriteLine("Do you want to delete this tasks? Input 'y' if yes, other to continue");
                 if (Console.ReadLine() == "y")
                 {
-                    foreach (var item in cur)
+                    foreach (var item in result)
                     {
                         Tasks.Remove(item);
                     }
@@ -216,10 +171,10 @@ namespace LabN1
             char[] separator = { ';' };
             while (!reader.EndOfStream)
             {
-                string str = reader.ReadLine();
-                string[] elements = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                string inputString = reader.ReadLine();
+                string[] elements = inputString.Split(separator);
                 string title = elements[0];
-                string desc = elements[1];
+                string description = elements[1];
                 DateTime date = DateTime.Parse(elements[2]);
                 var tags = new List<string> { };
                 for (int i = 3; i<elements.Length;i++)
@@ -227,7 +182,7 @@ namespace LabN1
                     string tag = elements[i];
                     tags.Add(tag);
                 }
-                var task = new Task(title, desc, date, tags);
+                var task = new Task(title, description, date, tags);
                 tasks.Add(task);
             }
             Tasks = tasks;
