@@ -4,7 +4,7 @@ using System.IO;
 
 namespace LabN1
 {
-    class TodoList
+    public class TodoList
     {
         public TodoList ()
         {
@@ -31,7 +31,7 @@ namespace LabN1
                 Console.WriteLine("Sorry, you lost your time. Please, think of a new deadline.");
             }
             Console.WriteLine($"{"Tags (finish on empty line):",38} ");
-            var tags = new List<string> { };
+            List<string> tags = new List<string> { };
             int counter = 1;
             do
             {
@@ -46,19 +46,19 @@ namespace LabN1
         }
         public bool PrintAll()
         {
-            if (Tasks != null && Tasks.Count!=0)
+            if (Tasks != null && Tasks.Count != 0)
             {
-                Tasks.Sort(delegate (Task x, Task y)
-                {
-                    return x.Deadline.CompareTo(y.Deadline);
-                });
+                Tasks.Sort((Task x, Task y) => x.Deadline.CompareTo(y.Deadline));
                 Console.WriteLine("Last tasks:");
-                foreach (var item in Tasks)
+                foreach (Task item in Tasks)
                 {
                     Print(item);
                 }
             }
-            else Console.WriteLine("No tasks");
+            else
+            {
+                Console.WriteLine("No tasks");
+            }
             return true;
         }
         public bool Exit()
@@ -72,7 +72,7 @@ namespace LabN1
             Console.WriteLine($"Deadline: {item.Deadline:d}");
             Console.WriteLine($"Tags:");
             int counter = 1;
-            foreach (var tag in item.Tags)
+            foreach (string tag in item.Tags)
             {
                 Console.WriteLine($"    {counter}: {tag}");
                 counter++;
@@ -86,12 +86,12 @@ namespace LabN1
             string[] tags = input.Split((string[]) null, StringSplitOptions.RemoveEmptyEntries);
             List<Task> result = Tasks.FindAll(delegate(Task c)
             {
-                int k = 0;
+                int counter = 0;
                 foreach (string tag in tags)
                 {
-                    if (c.Tags.Contains(tag)) k++;
+                    if (c.Tags.Contains(tag)) counter++;
                 }
-                if (k == tags.Length) return true;
+                if (counter == tags.Length) return true;
                 else return false;
             });
             return result;
@@ -102,14 +102,14 @@ namespace LabN1
             Console.WriteLine("Results:");
             if (result.Count != 0)
             {
-                foreach (var item in result)
+                foreach (Task item in result)
                 {
                     Print(item);
                 }
                 Console.WriteLine("Do you want to delete this tasks? Input 'y' if yes, other to continue");
                 if (Console.ReadLine() == "y")
                 {
-                    foreach (var item in result)
+                    foreach (Task item in result)
                     {
                         Tasks.Remove(item);
                     }
@@ -126,21 +126,22 @@ namespace LabN1
             {
                 return true;
             }
-            var file = new FileStream(path, FileMode.Create, FileAccess.Write);
-            var writer = new StreamWriter(file);
-            writer.WriteLine("Title;Description;Deadline;Tags");
-            foreach (var item in Tasks)
+            FileStream file = new FileStream(path, FileMode.Create, FileAccess.Write);
+            using (StreamWriter writer = new StreamWriter(file))
             {
-                writer.Write(item.Title + ";");
-                writer.Write(item.Description + ";");
-                writer.Write(item.Deadline.ToShortDateString());
-                foreach (var tag in item.Tags)
+                writer.WriteLine("Title;Description;Deadline;Tags");
+                foreach (Task item in Tasks)
                 {
-                    writer.Write(";" + tag);
+                    writer.Write(item.Title + ";");
+                    writer.Write(item.Description + ";");
+                    writer.Write(item.Deadline.ToShortDateString());
+                    foreach (string tag in item.Tags)
+                    {
+                        writer.Write(";" + tag);
+                    }
+                    writer.WriteLine();
                 }
-                writer.WriteLine();
             }
-            writer.Close();
             file.Close();
             return true;
         }
@@ -166,24 +167,26 @@ namespace LabN1
                 }
                 break;
             }
-            var reader = new StreamReader(file);
-            reader.ReadLine();
-            char[] separator = { ';' };
-            while (!reader.EndOfStream)
+            using (StreamReader reader = new StreamReader(file))
             {
-                string inputString = reader.ReadLine();
-                string[] elements = inputString.Split(separator);
-                string title = elements[0];
-                string description = elements[1];
-                DateTime date = DateTime.Parse(elements[2]);
-                var tags = new List<string> { };
-                for (int i = 3; i<elements.Length;i++)
+                reader.ReadLine();
+                char[] separator = { ';' };
+                while (!reader.EndOfStream)
                 {
-                    string tag = elements[i];
-                    tags.Add(tag);
+                    string inputString = reader.ReadLine();
+                    string[] elements = inputString.Split(separator);
+                    string title = elements[0];
+                    string description = elements[1];
+                    DateTime date = DateTime.Parse(elements[2]);
+                    List<string> tags = new List<string> { };
+                    for (int i = 3; i < elements.Length; i++)
+                    {
+                        string tag = elements[i];
+                        tags.Add(tag);
+                    }
+                    Task task = new Task(title, description, date, tags);
+                    tasks.Add(task);
                 }
-                var task = new Task(title, description, date, tags);
-                tasks.Add(task);
             }
             Tasks = tasks;
             file.Close();
@@ -192,8 +195,7 @@ namespace LabN1
         private string PathReader()
         {
             Console.Write("Path to the file (input 'cancel' to get back to menu): ");
-            string path = Console.ReadLine();
-            return path;
+            return Console.ReadLine();
         }
     }
 }

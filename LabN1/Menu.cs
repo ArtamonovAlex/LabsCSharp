@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace LabN1
 {
-    class Menu
+    public class Menu
     {
-        public Menu (string title)
+        public string Title { get; private set; }
+        public List<MenuItem> MenuItems { get; private set; }
+        public Menu(string title)
         {
             Title = title;
             MenuItems = new List<MenuItem>();
         }
-        public string Title { get; private set; }
-        public List<MenuItem> MenuItems { get; private set; }
         private void AddItem(string title, Func<bool> function)
         {
             MenuItems.Add(new MenuItem(title, function));
@@ -33,7 +33,7 @@ namespace LabN1
             Console.ReadLine();
             Console.Clear();
             Console.WriteLine(Title);
-            foreach (var item in MenuItems)
+            foreach (MenuItem item in MenuItems)
             {
                 Console.WriteLine(item.Label);
             }
@@ -50,7 +50,7 @@ namespace LabN1
                     Console.WriteLine("Wrong input");
                     continue;
                 }
-                foreach (var item in MenuItems)
+                foreach (MenuItem item in MenuItems)
                 {
                     if (chosenOption == item.Label[0])
                     {
