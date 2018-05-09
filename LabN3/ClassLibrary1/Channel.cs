@@ -15,7 +15,7 @@ namespace ClassLibrary1
 
         public void Send(TodoList list)
         {
-            list.PrintAll();
+            
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             string jsonList = serializer.Serialize(list);
             byte[] message = Encoding.Unicode.GetBytes(jsonList);

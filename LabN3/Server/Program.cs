@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using ClassLibrary1;
+using System.IO;
 
 namespace Server
 {
@@ -11,22 +12,33 @@ namespace Server
     {
         public static TodoList List;
 
+        public static string LocalFile;
+
         public static void Start(object socket)
         {
+            byte[] accepting = new byte[10];
             Socket client = (Socket)socket;
             Console.WriteLine("Client with ip {0} connected.", client.RemoteEndPoint);
             Channel channel = new Channel(client);
-            //channel.Send(List);
             while (client.Connected)
             {
                 try {
-                    channel.Send(List);
-                    List = channel.Receive();
-                    List.PrintAll();
+                    if (client.Receive(accepting) == 1)
+                    {
+                        List.Tasks = TodoList.ReadCsv(LocalFile);
+                        channel.Send(List);
+                        List = channel.Receive();
+                        List.SaveCsv(LocalFile);
                     }
+                    else throw new SocketException();
+                }
                 catch (SocketException)
                 {
-
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
             }
             Console.WriteLine("Client with ip {0} disconnected", client.RemoteEndPoint);
@@ -40,9 +52,10 @@ namespace Server
                 Console.WriteLine("Invalid arguments");
                 return;
             }
+            LocalFile = args[1];
             try
             {
-                List<Task> list = TodoList.ReadCsv(args[1]);
+                List<Task> list = TodoList.ReadCsv(LocalFile);
                 List = new TodoList(list);
             }
             catch

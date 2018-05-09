@@ -132,30 +132,14 @@ namespace ClassLibrary1
             return true;
         }
 
-        public bool SaveCsv()
+        public bool SaveToPath()
         {
             string path = PathReader();
             if (path == "cancel")
             {
                 return true;
             }
-            FileStream file = new FileStream(path, FileMode.Create, FileAccess.Write);
-            using (StreamWriter writer = new StreamWriter(file))
-            {
-                writer.WriteLine("Title;Description;Deadline;Tags");
-                foreach (Task item in Tasks)
-                {
-                    writer.Write(item.Title + ";");
-                    writer.Write(item.Description + ";");
-                    writer.Write(item.Deadline.ToShortDateString());
-                    foreach (string tag in item.Tags)
-                    {
-                        writer.Write(";" + tag);
-                    }
-                    writer.WriteLine();
-                }
-            }
-            file.Close();
+            SaveCsv(path);
             return true;
         }
 
@@ -182,6 +166,27 @@ namespace ClassLibrary1
             }
             Tasks = list;
             return true;
+        }
+
+        public void SaveCsv(string path)
+        {
+            FileStream file = new FileStream(path, FileMode.Create, FileAccess.Write);
+            using (StreamWriter writer = new StreamWriter(file))
+            {
+                writer.WriteLine("Title;Description;Deadline;Tags");
+                foreach (Task item in Tasks)
+                {
+                    writer.Write(item.Title + ";");
+                    writer.Write(item.Description + ";");
+                    writer.Write(item.Deadline.ToShortDateString());
+                    foreach (string tag in item.Tags)
+                    {
+                        writer.Write(";" + tag);
+                    }
+                    writer.WriteLine();
+                }
+            }
+            file.Close();
         }
 
         public static List<Task> ReadCsv(string path)

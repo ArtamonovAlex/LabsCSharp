@@ -23,14 +23,14 @@ namespace ClassLibrary1
             MenuItems.Add(new MenuItem(title, function));
         }
 
-        public void Init()
+        public void Init(TodoList list)
         { 
-            AddItem("1.Add task", Todo.AddTask);
-            AddItem("2.Last tasks", Todo.PrintAll);
-            AddItem("3.Find tasks by tags", Todo.Delete);
-            AddItem("4.Load from .csv file", Todo.InitCsv);
-            AddItem("5.Save in .csv format", Todo.SaveCsv);
-            AddItem("6.Exit", Todo.Exit);
+            AddItem("1.Add task", list.AddTask);
+            AddItem("2.Last tasks", list.PrintAll);
+            AddItem("3.Find tasks by tags", list.Delete);
+            AddItem("4.Load from .csv file", list.InitCsv);
+            AddItem("5.Save in .csv format", list.SaveToPath);
+            AddItem("6.Exit", list.Exit);
         }
 
         private void Print()
@@ -48,6 +48,8 @@ namespace ClassLibrary1
 
         public void Work(Channel channel)
         {
+            byte[] accepting = new byte[1] { 1 };
+            byte[] disconnect = new byte[2] { 1, 1 };
             bool run = true;
             while (run)
             {
@@ -57,7 +59,10 @@ namespace ClassLibrary1
                     Console.WriteLine("Wrong input");
                     continue;
                 }
+                channel.Socket.Send(accepting);
                 Todo = channel.Receive();
+                MenuItems.Clear();
+                Init(Todo);
                 foreach (MenuItem item in MenuItems)
                 {
                     if (chosenOption == item.Label[0])
@@ -67,6 +72,7 @@ namespace ClassLibrary1
                     }
                 }
             }
+            channel.Socket.Send(disconnect);
         }
     }
 }

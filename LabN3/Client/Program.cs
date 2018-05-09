@@ -22,7 +22,7 @@ namespace Client
                 Channel channel = new Channel(handler);
                 TodoList list = new TodoList(new List<Task>());
                 Menu menu = new Menu("Main", list);
-                menu.Init();
+                menu.Init(list);
                 menu.Work(channel);
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
