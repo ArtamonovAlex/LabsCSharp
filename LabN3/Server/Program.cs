@@ -36,10 +36,12 @@ namespace Server
                 {
                     break;
                 }
-                catch (Exception ex)
+                catch (IOException)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Cannot load the file, drop active connection");
+                    break;
                 }
+                catch (Exception ex) { }
             }
             Console.WriteLine("Client with ip {0} disconnected", client.RemoteEndPoint);
             client.Close();
